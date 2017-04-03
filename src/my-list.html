@@ -107,6 +107,7 @@
       _renderVarBoxes () {
         var self = this;
         var vars = this.shadowRoot.querySelector('#vars');
+        if (this.variableNames.length > 0) $(vars).show();
         for (var i = 0; i < this.variableNames.length; i++) {
           var v = this.variableNames[i];
           var $v = $(`<div class="var" id="var-${v}">
@@ -116,7 +117,6 @@
           var varBox = this.shadowRoot.querySelector(`#var-${v}`);
           if (!varBox) $(vars).append($v);
         }
-        $(vars).show();
 
         var varInputs = this.shadowRoot.querySelectorAll('.var-input');
         $(varInputs).on('change', e => {
