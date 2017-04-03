@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="text-card">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 3px;
+      }
+
+      .card {
+        width: 100%;
+        background-color: #fff;
+        box-sizing: border-box;
+        padding: 4px;
+        border-radius: 2px;
+        border: 1px solid #ccc;
+      }
+
+      .btn-cp {
+        color: #444;
+        cursor: pointer;
+      }
+
+      .num {
+        color: #888;
+        font-size: 10pt;
+      }
+
+      .d {
+        display: inline-block;
+      }
+
+      .workspace {
+        visibility: hidden;
+        display: inline;
+        width: 0px;
+        height: 0px;
+        overflow: hidden;
+      }
+    </style>
+
+    <div class="card">
+      <div class="d num">
+        {{ num }}
+      </div>
+      <div class="d btn-cp" on-click="copyToClipboard">
+        <iron-icon icon="content-paste" data-body$="{{ body }}"></iron-icon>
+      </div>
+      <div class="d body">
+        {{ body }}
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class TextCard extends Polymer.Element {
+      static get is() { return 'text-card'; }
+
+      static get properties() {
+        return {
+          body: {
+            type: String,
+            value: "Hello!"
+          },
+          num: {
+            type: Number,
+            value: null
+          }
+        }
+      }
+
+      copyToClipboard (e) {
+        var elem = e.target;
+        //var body = elem.dataset.body.trim();
+        var workspace = this.shadowRoot.querySelector('.body');
+        var selection = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(workspace);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        var result = document.execCommand('copy');
+      }
+
+    }
+    window.customElements.define(TextCard.is, TextCard);
+  </script>
+</dom-module>

@@ -1,0 +1,34 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="./components/text-card.html">
+
+
+<dom-module id="my-list">
+  <template>
+
+    <style include="shared-styles">
+      #stage {
+        width: 80%;
+        margin: auto;
+        margin-top: 24px;
+      }
+
+      .text-card {
+
+      }
+    </style>
+
+    <div id="stage">
+        <text-card num=1 body="npm install -g polymer"></text-card>
+        <text-card num=2 body="firebase init"></text-card>
+    </div>
+
+  </template>
+
+  <script>
+    class MyList extends Polymer.Element {
+      static get is() { return 'my-list'; }
+    }
+    window.customElements.define(MyList.is, MyList);
+  </script>
+</dom-module>
