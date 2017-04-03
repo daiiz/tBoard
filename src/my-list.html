@@ -50,6 +50,16 @@
       .var-name {
       }
 
+      #sample {
+        text-align: center;
+        padding: 15px;
+        font-size: 10pt;
+      }
+
+      #sample a {
+        color: #4285F4;
+      }
+
       .stage-dragenter {
         background: #ccc;
       }
@@ -66,6 +76,12 @@
       </div>
 
       <div id="vars">
+      </div>
+
+      <div id="sample">
+        <a href="https://raw.githubusercontent.com/daiz713/tBoard/master/sample.txt" download="sample.txt">
+          Sample (sample.txt)
+        </a>
       </div>
     </div>
 
@@ -193,6 +209,7 @@
             idx += 1;
           }
           this._renderVarBoxes();
+          this._updateBodyVariable();
         }
       }
     }
