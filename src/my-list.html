@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="./components/text-card.html">
-
+<script src="./libs/jquery.js"></script>
 
 <dom-module id="my-list">
   <template>
@@ -16,11 +16,27 @@
       .text-card {
 
       }
+
+      .file {
+        padding: 6px;
+        background-color: #e1e1e1;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+
+      .stage-dragenter {
+        background: #ccc;
+      }
     </style>
 
     <div id="stage">
-        <text-card num=1 body="npm install -g polymer"></text-card>
-        <text-card num=2 body="firebase init"></text-card>
+      <div class="file">
+        <input type="file" id="file-form" accept="text/plain">
+      </div>
+      <div id="cards">
+        <text-card num=Sample body="firebase init"></text-card>
+      </div>
     </div>
 
   </template>
@@ -28,6 +44,43 @@
   <script>
     class MyList extends Polymer.Element {
       static get is() { return 'my-list'; }
+
+      ready () {
+        super.ready();
+        this._bindEvents();
+        console.info(888);
+      }
+
+      _bindEvents () {
+        var self = this;
+        var fileInput = this.shadowRoot.querySelector('#file-form');
+        var $file = jQuery(fileInput);
+        $file.on('change', e => {
+          var fileReader = new FileReader();
+          fileReader.onload = e => {
+            var txt = e.target.result;
+            var texts = txt.split('\n');
+            self._renderTextCards(texts);
+          }
+          fileReader.readAsText(e.target.files[0]);
+        });
+      }
+
+      _renderTextCards (texts=[]) {
+        var cardsArea = this.shadowRoot.querySelector('#cards');
+        if (texts.length > 0) {
+          cardsArea.innerHTML = '';
+        }
+        for (var i = 0; i < texts.length; i++) {
+          var txt = texts[i].trim();
+          if (txt.length === 0) continue;
+          var textCard = document.createElement('text-card');
+          textCard.body = txt;
+          textCard.num = i;
+          cardsArea.appendChild(textCard);
+        }
+      }
+
     }
     window.customElements.define(MyList.is, MyList);
   </script>
