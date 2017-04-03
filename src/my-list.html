@@ -17,15 +17,37 @@
         padding: 2px;
         font-size: 10pt;
         color: #444;
-        padding-top: 10px;
+        padding-top: 12px;
       }
 
-      .file {
+      .file, #vars {
         padding: 6px;
         background-color: #e1e1e1;
         border-radius: 4px;
         margin-bottom: 15px;
         box-sizing: border-box;
+      }
+
+      #vars {
+        margin-top: 25px;
+        display: none;
+      }
+
+      .var {
+        font-size: 10pt;
+        padding: 3px;
+      }
+
+      .var-input {
+        padding: 3px;
+        width: 200px;
+        font-size: 10.5pt;
+        background-color: #fcfcfc;
+        border: 0px;
+        border-radius: 4px;
+      }
+
+      .var-name {
       }
 
       .stage-dragenter {
@@ -37,8 +59,13 @@
       <div class="file">
         <input type="file" id="file-form" accept="text/plain">
       </div>
+
       <div id="cards">
         <text-card num=Sample body="firebase init"></text-card>
+        <text-card num=Sample body="← ここを押してコピー"></text-card>
+      </div>
+
+      <div id="vars">
       </div>
     </div>
 
@@ -46,18 +73,23 @@
 
   <script>
     class MyList extends Polymer.Element {
+      constructor () {
+        super();
+        this.variableNames = [];
+        this.vars = {};
+      }
+
       static get is() { return 'my-list'; }
 
       ready () {
         super.ready();
         this._bindEvents();
-        console.info(888);
       }
 
       _bindEvents () {
         var self = this;
         var fileInput = this.shadowRoot.querySelector('#file-form');
-        var $file = jQuery(fileInput);
+        var $file = $(fileInput);
         $file.on('change', e => {
           var fileReader = new FileReader();
           fileReader.onload = e => {
@@ -72,16 +104,72 @@
         });
       }
 
+      _renderVarBoxes () {
+        var self = this;
+        var vars = this.shadowRoot.querySelector('#vars');
+        for (var i = 0; i < this.variableNames.length; i++) {
+          var v = this.variableNames[i];
+          var $v = $(`<div class="var" id="var-${v}">
+            <span class="var-name">${v}</span>:
+            <input type="text" data-var="${v}" class="var-input" placeholder="${v}">
+          </div>`);
+          var varBox = this.shadowRoot.querySelector(`#var-${v}`);
+          if (!varBox) $(vars).append($v);
+        }
+        $(vars).show();
+
+        var varInputs = this.shadowRoot.querySelectorAll('.var-input');
+        $(varInputs).on('change', e => {
+          var elem = e.target;
+          self._updateBodyVariable(elem.dataset.var, elem.value);
+          //console.info(elem.dataset.var, elem.value);
+        });
+      }
+
+      _updateBodyVariable (varName='', varVal='') {
+        var v = `[${varName.trim()}]`;
+        varVal = varVal.trim();
+        if (varVal.length === 0) varVal = v;
+        this.vars[varName.trim()] = varVal;
+
+        var cardsArea = this.shadowRoot.querySelector('#cards');
+        var cards = cardsArea.querySelectorAll('text-card');
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          var orgBody = card.getOriginalBody();
+          var brackets = orgBody.match(/\[.+?\]/gi);
+          if (!brackets) continue;
+          for (var j = 0; j < brackets.length; j++) {
+            var varName = brackets[j].replace('[', '').replace(']', '');
+            orgBody = orgBody.replace(brackets[j], this.vars[varName]);
+          }
+          card.body = orgBody;
+        }
+      }
+
       _renderTextCards (texts=[]) {
         var cardsArea = this.shadowRoot.querySelector('#cards');
+        var vars = this.shadowRoot.querySelector('#vars');
         if (texts.length > 0) {
           cardsArea.innerHTML = '';
+          $(vars).hide();
         }
 
         var idx = 1;
         for (var i = 0; i < texts.length; i++) {
           var txt = texts[i].trim();
           if (txt.length === 0) continue;
+
+          var brackets = txt.match(/\[.+?\]/gi);
+          if (brackets) {
+            for (var j = 0; j < brackets.length; j++) {
+              var v = brackets[j].replace('[', '').replace(']', '').trim();
+              if (this.variableNames.indexOf(v) === -1) {
+                this.vars[v] = `[${v}]`;
+                this.variableNames.push(v);
+              }
+            }
+          }
 
           if (txt.startsWith('#')) {
             // ラベル
@@ -91,14 +179,22 @@
             // 非表示
           }else {
             var textCard = document.createElement('text-card');
+            var toks = txt.split('\t');
+            if (toks.length === 2) {
+              textCard.num = toks[0];
+              txt = toks[1];
+            }else {
+              textCard.num = idx;
+              txt = toks[0];
+            }
             textCard.body = txt;
-            textCard.num = idx;
+            textCard.orgbody = txt;
             cardsArea.appendChild(textCard);
             idx += 1;
           }
+          this._renderVarBoxes();
         }
       }
-
     }
     window.customElements.define(MyList.is, MyList);
   </script>
