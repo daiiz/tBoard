@@ -1,0 +1,18 @@
+# コマンド集 v1
+npm install -g polymer
+firebase init
+firebase deploy
+-ls -a
+firebase deploy --token [token1]
+echo [token1]
+echo [token2]
+
+# Django
+python manage.py collectstatic
+
+# 文章
+先頭にハイフン (-) を付けるとパレットに表示しない．
+先頭にシャープ記号 (#) を付けるとラベルとして表示する．
+何かを順番にやってもらいたいときは，このサンプルのようなプレーンテキストを配布して， https://daiiz-tboard.firebaseapp.com/ で読み込んでもらえば良い．
+サーバサイドには一切データを保存しない (現バージョンではクライアントサイドにも何も保存していない) ため，一時的なトークンなどを含めて配布しても安心．
+見出し	見出しと本文をTabで区切って書くこともできる．見出しがないものは連番で採番される．
