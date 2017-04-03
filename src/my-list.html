@@ -13,8 +13,11 @@
         margin-top: 24px;
       }
 
-      .text-card {
-
+      .label {
+        padding: 2px;
+        font-size: 10pt;
+        color: #444;
+        padding-top: 10px;
       }
 
       .file {
@@ -62,7 +65,10 @@
             var texts = txt.split('\n');
             self._renderTextCards(texts);
           }
-          fileReader.readAsText(e.target.files[0]);
+          var file = e.target.files[0];
+          if (file.type !== 'text/plain') return false;
+          fileReader.readAsText(file);
+          fileInput.value = '';
         });
       }
 
@@ -71,13 +77,25 @@
         if (texts.length > 0) {
           cardsArea.innerHTML = '';
         }
+
+        var idx = 1;
         for (var i = 0; i < texts.length; i++) {
           var txt = texts[i].trim();
           if (txt.length === 0) continue;
-          var textCard = document.createElement('text-card');
-          textCard.body = txt;
-          textCard.num = i;
-          cardsArea.appendChild(textCard);
+
+          if (txt.startsWith('#')) {
+            // ラベル
+            var $label = $(`<div class="label">${txt.split("#")[1].trim()}</div>`);
+            $(cardsArea).append($label);
+          }else if (txt.startsWith('-')) {
+            // 非表示
+          }else {
+            var textCard = document.createElement('text-card');
+            textCard.body = txt;
+            textCard.num = idx;
+            cardsArea.appendChild(textCard);
+            idx += 1;
+          }
         }
       }
 
